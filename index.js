@@ -1,110 +1,41 @@
 const TelegramBot = require("node-telegram-bot-api");
-const qr = require("qrcode");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
 // Create a bot instance
 const bot = new TelegramBot(token, { polling: true });
 
-// Store generated QR codes (in a real app, you might want to use a database)
-const qrCodes = {};
-
-// // Handle the /start command
-// bot.onText(/\/start/, async (msg) => {
-//   const chatId = msg.chat.id;
-
-//   try {
-//     // Generate a unique identifier for this QR code
-//     const qrId = `qr-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-//     const dataToEncode = `https://example.com/verify?user=${msg.from.id}&qr=${qrId}`;
-
-//     // Generate QR code as a data URL
-//     const qrCodeUrl = await new Promise((resolve, reject) => {
-//       qr.toDataURL(dataToEncode, { errorCorrectionLevel: "H" }, (err, url) => {
-//         if (err) reject(err);
-//         else resolve(url);
-//       });
-//     });
-
-//     // Store the QR code data (in memory - for demonstration only)
-//     qrCodes[qrId] = {
-//       userId: msg.from.id,
-//       createdAt: new Date(),
-//       data: dataToEncode,
-//     };
-
-//     // Send the QR code as an image
-//     await bot.sendPhoto(chatId, qrCodeUrl, {
-//       caption: "Here is your QR code! Scan it to verify your identity.",
-//       parse_mode: "Markdown",
-//     });
-
-//     // Alternatively, send as a link to the QR code image
-//     // await bot.sendMessage(chatId, `Here is your QR code: ${qrCodeUrl}`);
-//   } catch (error) {
-//     console.error("Error generating QR code:", error);
-//     bot.sendMessage(
-//       chatId,
-//       "Sorry, there was an error generating your QR code. Please try again."
-//     );
-//   }
-// });
-
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start/, async (msg) => {
+  // First send text
   const chatId = msg.chat.id;
   const firstName = msg.from.first_name || "there";
 
+  // 1. Construct absolute path to your image
+  const publicFolder = path.join(__dirname, "public");
+  const imagePath = path.join(publicFolder, "qr.jpg");
+
+  // 2. Verify file exists first
+  if (!fs.existsSync(imagePath)) {
+    return bot.sendMessage(chatId, "❌ Welcome image not found!");
+  }
+
   const welcomeMessage =
-    `👋 Hello *${firstName}*! Welcome to our bot!\n\n` +
-    `Here's what you can do:\n` +
-    `• /start - Get your unique QR code\n` +
-    `• /help - See all available commands\n` +
-    `• /info - Learn about this bot\n\n` +
+    `👋 Hello *${firstName}* , Thank You for your support!\n\n` +
+    `You can donate *BTC* using the address below\n` +
+    `*BTC Address:* AFDGFsdgdg\n` +
+    `Or Scan the *QR Code* below\n\n` +
     `We're glad to have you here! 😊`;
 
-  bot.sendMessage(chatId, welcomeMessage, { parse_mode: "Markdown" });
+  await bot.sendMessage(chatId, welcomeMessage, { parse_mode: "Markdown" });
+
+  // Then send photo (local file or URL)
+  await bot.sendPhoto(chatId, fs.createReadStream(imagePath), {
+    caption: "🖼 Welcome to our bot!",
+    parse_mode: "Markdown",
+  });
 });
-
-// // Handle the /start command
-// bot.onText(/\/donate/, async (msg) => {
-//   const chatId = msg.chat.id;
-
-//   try {
-//     // Generate a unique identifier for this QR code
-//     const qrId = `qr-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-//     const dataToEncode = `https://example.com/verify?user=${msg.from.id}&qr=${qrId}`;
-
-//     // Generate QR code as a data URL
-//     const qrCodeUrl = await new Promise((resolve, reject) => {
-//       qr.toDataURL(dataToEncode, { errorCorrectionLevel: "H" }, (err, url) => {
-//         if (err) reject(err);
-//         else resolve(url);
-//       });
-//     });
-
-//     // Store the QR code data (in memory - for demonstration only)
-//     qrCodes[qrId] = {
-//       userId: msg.from.id,
-//       createdAt: new Date(),
-//       data: dataToEncode,
-//     };
-
-//     // Send the QR code as an image
-//     await bot.sendPhoto(chatId, qrCodeUrl, {
-//       caption: "Here is your QR code! Scan it to verify your identity.",
-//       parse_mode: "Markdown",
-//     });
-
-//     // Alternatively, send as a link to the QR code image
-//     // await bot.sendMessage(chatId, `Here is your QR code: ${qrCodeUrl}`);
-//   } catch (error) {
-//     console.error("Error generating QR code:", error);
-//     bot.sendMessage(
-//       chatId,
-//       "Sorry, there was an error generating your QR code. Please try again."
-//     );
-//   }
-// });
 
 // Start message
 console.log("Bot is running...");
