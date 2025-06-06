@@ -23,16 +23,15 @@ bot.onText(/\/start/, async (msg) => {
 
   const welcomeMessage =
     `👋 Hello *${firstName}* \n\n` +
-    `You can donate *BTC* using the address below\n` +
-    `*BTC Address:* 19d3f9KnYKioyjqdWm97uWEeLDUs6w9iHh\n` +
-    `Or Scan the *QR Code* below\n\n` +
-    `Thank You for your support! 😊`;
+    `You can *donate* to promote the startups developing innovative products using AI technology that have the potential to transform industries and improve lives. By supporting these startups, you play a crucial role in fostering creativity and driving the future of technology.\n\n` +
+    `You can donate using *BTC Address:* 19d3f9KnYKioyjqdWm97uWEeLDUs6w9iHh\n` +
+    `Or Scan the *QR Code* below\n\n`;
 
   await bot.sendMessage(chatId, welcomeMessage, { parse_mode: "Markdown" });
 
   // Then send photo (local file or URL)
   await bot.sendPhoto(chatId, fs.createReadStream(imagePath), {
-    caption: "Scan the QR code",
+    caption: "Thank You for your support! 😊",
     parse_mode: "Markdown",
   });
 });
